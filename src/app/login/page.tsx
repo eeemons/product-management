@@ -1,21 +1,32 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useLoginMutation } from "@/lib/features/auth/authSlice";
 import { RootState } from "@/lib/store";
+import InputField from "@/components/InputField";
+import { LoginFormData, loginSchema } from "@/schema/loginSchema";
 
 const LoginPage = () => {
-  const [email, setEmail] = useState("");
   const [login, { isLoading, error }] = useLoginMutation();
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const router = useRouter();
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const onSubmit = async (data: LoginFormData) => {
     try {
-      await login({ email }).unwrap();
+      await login({ email: data.email }).unwrap();
     } catch (err) {
       console.error("Failed to login: ", err);
     }
@@ -31,19 +42,14 @@ const LoginPage = () => {
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
         <h1 className="text-2xl font-bold text-center text-gray-900">Login</h1>
-        <form className="space-y-6" onSubmit={handleSubmit}>
-          <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="block w-full px-3 py-2 mt-1 text-gray-900 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              required
-            />
-          </div>
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+          <InputField
+            label="Email"
+            type="email"
+            placeholder="Enter your email"
+            register={register("email")}
+            error={errors.email}
+          />
 
           <button
             type="submit"
@@ -52,6 +58,7 @@ const LoginPage = () => {
           >
             {isLoading ? "Logging in..." : "Login"}
           </button>
+
           {error && (
             <p className="text-sm text-red-600">{JSON.stringify(error)}</p>
           )}

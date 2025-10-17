@@ -8,9 +8,8 @@ import { AppDispatch, RootState } from "@/lib/store";
 import { logout } from "@/lib/features/auth/authSlice";
 
 const DashboardPage = () => {
-  const { isAuthenticated, user } = useSelector(
-    (state: RootState) => state.auth
-  );
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
 
@@ -22,12 +21,12 @@ const DashboardPage = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+    router.push("/login");
   };
 
   if (!isAuthenticated) {
     return null;
   }
-
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="p-4 bg-white shadow-md">
@@ -43,9 +42,7 @@ const DashboardPage = () => {
       </header>
       <main className="p-4">
         <div className="max-w-4xl mx-auto">
-          <h2 className="text-xl font-semibold text-gray-800">
-            Welcome, {user?.name || "User"}
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-800">Welcome, User</h2>
         </div>
       </main>
     </div>

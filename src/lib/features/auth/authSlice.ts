@@ -1,4 +1,4 @@
-import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
 
 const API_BASE_URL = "https://api.bitechx.com";
 
@@ -20,20 +20,39 @@ export const login = createAsyncThunk(
   }
 );
 
+interface AuthState {
+  token: string | null;
+  isAuthenticated: boolean;
+  status: "idle" | "loading" | "succeeded" | "failed";
+  error: string | null;
+}
+
+const initialState: AuthState = {
+  token: null,
+  isAuthenticated: false,
+  status: "idle",
+  error: null,
+};
+
 const authSlice = createSlice({
   name: "auth",
-  initialState: {
-    user: null,
-    token: null,
-    isAuthenticated: false,
-    status: "idle",
-    error: null as string | null,
-  },
+  initialState,
   reducers: {
     logout: (state) => {
-      state.user = null;
       state.token = null;
       state.isAuthenticated = false;
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+      }
+    },
+    rehydrateAuth: (state) => {
+      if (typeof window !== "undefined") {
+        const token = localStorage.getItem("token");
+        if (token) {
+          state.token = token;
+          state.isAuthenticated = true;
+        }
+      }
     },
   },
   extraReducers: (builder) => {
@@ -41,11 +60,13 @@ const authSlice = createSlice({
       .addCase(login.pending, (state) => {
         state.status = "loading";
       })
-      .addCase(login.fulfilled, (state, action) => {
+      .addCase(login.fulfilled, (state, action: PayloadAction<{ token: string }>) => {
         state.status = "succeeded";
         state.isAuthenticated = true;
-        state.user = action.payload.user;
         state.token = action.payload.token;
+        if (typeof window !== "undefined") {
+          localStorage.setItem("token", action.payload.token);
+        }
       })
       .addCase(login.rejected, (state, action) => {
         state.status = "failed";
@@ -54,5 +75,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout } = authSlice.actions;
+export const { logout, rehydrateAuth } = authSlice.actions;
 export default authSlice.reducer;

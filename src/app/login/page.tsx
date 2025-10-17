@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
+import Button from "@/components/Button";
 import { useLoginMutation } from "@/lib/features/auth/authSlice";
 import { RootState } from "@/lib/store";
 import InputField from "@/components/InputField";
@@ -55,13 +56,9 @@ const LoginPage = () => {
             error={errors.email}
           />
 
-          <button
-            type="submit"
-            className="w-full px-4 py-2 text-sm font-medium text-white bg-rich-black border border-transparent rounded-md shadow-sm hover:bg-dark-blue focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-dark-blue"
-            disabled={isLoading}
-          >
+          <Button type="submit" disabled={isLoading}>
             {isLoading ? "Logging in..." : "Login"}
-          </button>
+          </Button>
         </form>
       </div>
     </div>

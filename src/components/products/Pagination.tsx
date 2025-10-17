@@ -37,22 +37,24 @@ const Pagination = ({
 
   const pageNumbers = getPageNumbers();
 
+  const perPageDropdown = (
+    <select
+      value={productsPerPage}
+      onChange={(e) => {
+        setProductsPerPage(Number(e.target.value));
+        paginate(1);
+      }}
+      className="px-4 py-2 rounded bg-flash-white text-rich-black"
+    >
+      <option value={10}>10 per page</option>
+      <option value={20}>20 per page</option>
+      <option value={50}>50 per page</option>
+    </select>
+  );
+
   return (
-    <nav className="mt-4 flex justify-between items-center">
-      <div>
-        <select
-          value={productsPerPage}
-          onChange={(e) => {
-            setProductsPerPage(Number(e.target.value));
-            paginate(1);
-          }}
-          className="px-4 py-2 rounded bg-flash-white text-rich-black"
-        >
-          <option value={10}>10 per page</option>
-          <option value={20}>20 per page</option>
-          <option value={50}>50 per page</option>
-        </select>
-      </div>
+    <nav className="mt-4 flex flex-col md:flex-row justify-between items-center">
+      <div className="hidden md:block">{perPageDropdown}</div>
       <ul className="flex justify-center items-center space-x-2">
         <li>
           <button
@@ -63,24 +65,29 @@ const Pagination = ({
             <FaChevronLeft />
           </button>
         </li>
-        {pageNumbers.map((number, index) => (
-          <li key={index}>
-            {number === "..." ? (
-              <span className="px-4 py-2">...</span>
-            ) : (
-              <button
-                onClick={() => paginate(number as number)}
-                className={`px-4 py-2 rounded ${
-                  currentPage === number
-                    ? "bg-lion-brown text-white"
-                    : "bg-flash-white"
-                }`}
-              >
-                {number}
-              </button>
-            )}
-          </li>
-        ))}
+        <div className="hidden md:flex items-center space-x-2">
+            {pageNumbers.map((number, index) => (
+            <li key={index}>
+                {number === "..." ? (
+                <span className="px-4 py-2">...</span>
+                ) : (
+                <button
+                    onClick={() => paginate(number as number)}
+                    className={`px-4 py-2 rounded ${
+                    currentPage === number
+                        ? "bg-lion-brown text-white"
+                        : "bg-flash-white"
+                    }`}
+                >
+                    {number}
+                </button>
+                )}
+            </li>
+            ))}
+        </div>
+        <li className="md:hidden">
+            <span className="px-4 py-2">{`Page ${currentPage} of ${totalPages}`}</span>
+        </li>
         <li>
           <button
             onClick={() => paginate(currentPage + 1)}
@@ -91,6 +98,7 @@ const Pagination = ({
           </button>
         </li>
       </ul>
+      <div className="md:hidden mt-4">{perPageDropdown}</div>
     </nav>
   );
 };

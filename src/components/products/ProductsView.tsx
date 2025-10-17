@@ -7,6 +7,7 @@ import ViewToggle from "./ViewToggle";
 import Pagination from "./Pagination";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFetchProductsQuery } from "@/lib/features/products/productsSlice";
+import Spinner from "../Spinner";
 
 const ProductsView = () => {
   const [view, setView] = useState("grid");
@@ -15,7 +16,7 @@ const ProductsView = () => {
 
   const offset = (currentPage - 1) * productsPerPage;
 
-  const { data: products, isLoading } = useFetchProductsQuery({ offset, limit: productsPerPage });
+  const { data: products, isFetching } = useFetchProductsQuery({ offset, limit: productsPerPage });
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
@@ -28,7 +29,12 @@ const ProductsView = () => {
   const totalProducts = 100;
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col relative">
+      {isFetching && (
+        <div className="absolute inset-0 bg-white bg-opacity-50 flex justify-center items-center z-10">
+          <Spinner />
+        </div>
+      )}
       <div className="flex justify-end mb-4">
         <ViewToggle view={view} setView={setView} />
       </div>
@@ -41,22 +47,18 @@ const ProductsView = () => {
           variants={variants}
           transition={{ duration: 0.5 }}
         >
-          {isLoading ? (
-            <p>Loading...</p>
+          {view === "grid" ? (
+            <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+              {products?.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
           ) : (
-            view === "grid" ? (
-              <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                {products?.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-            ) : (
-              <div className="flex flex-col gap-4">
-                {products?.map((product) => (
-                  <ProductListItem key={product.id} product={product} />
-                ))}
-              </div>
-            )
+            <div className="flex flex-col gap-4">
+              {products?.map((product) => (
+                <ProductListItem key={product.id} product={product} />
+              ))}
+            </div>
           )}
         </motion.div>
       </AnimatePresence>

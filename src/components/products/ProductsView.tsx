@@ -1,25 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { Product } from "@/lib/types";
 import ProductCard from "./ProductCard";
 import ProductListItem from "./ProductListItem";
 import ViewToggle from "./ViewToggle";
 import Pagination from "./Pagination";
 import { motion, AnimatePresence } from "framer-motion";
+import { useFetchProductsQuery } from "@/lib/features/products/productsSlice";
 
-interface ProductsViewProps {
-  products: Product[];
-}
-
-const ProductsView = ({ products }: ProductsViewProps) => {
+const ProductsView = () => {
   const [view, setView] = useState("grid");
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage, setProductsPerPage] = useState(10);
 
-  const indexOfLastProduct = currentPage * productsPerPage;
-  const indexOfFirstProduct = indexOfLastProduct - productsPerPage;
-  const currentProducts = products.slice(indexOfFirstProduct, indexOfLastProduct);
+  const offset = (currentPage - 1) * productsPerPage;
+
+  const { data: products, isLoading } = useFetchProductsQuery({ offset, limit: productsPerPage });
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
@@ -27,6 +23,9 @@ const ProductsView = ({ products }: ProductsViewProps) => {
     hidden: { opacity: 0 },
     visible: { opacity: 1 },
   };
+
+  // HACK: Assuming 100 total products until the API provides the total count.
+  const totalProducts = 100;
 
   return (
     <div className="flex flex-col">
@@ -42,25 +41,29 @@ const ProductsView = ({ products }: ProductsViewProps) => {
           variants={variants}
           transition={{ duration: 0.5 }}
         >
-          {view === "grid" ? (
-            <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-              {currentProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
-              ))}
-            </div>
+          {isLoading ? (
+            <p>Loading...</p>
           ) : (
-            <div className="flex flex-col gap-4">
-              {currentProducts.map((product) => (
-                <ProductListItem key={product.id} product={product} />
-              ))}
-            </div>
+            view === "grid" ? (
+              <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                {products?.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {products?.map((product) => (
+                  <ProductListItem key={product.id} product={product} />
+                ))}
+              </div>
+            )
           )}
         </motion.div>
       </AnimatePresence>
       <div className="mt-auto pt-4">
         <Pagination
           productsPerPage={productsPerPage}
-          totalProducts={products.length}
+          totalProducts={totalProducts}
           paginate={paginate}
           currentPage={currentPage}
           setProductsPerPage={setProductsPerPage}

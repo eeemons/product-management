@@ -5,13 +5,10 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { AppDispatch, RootState } from "@/lib/store";
 import { logout } from "@/lib/features/auth/authSlice";
-import { useFetchProductsQuery } from "@/lib/features/products/productsSlice";
-
 import ProductsView from "@/components/products/ProductsView";
 
 const DashboardPage = () => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
-  const { data: products, isLoading } = useFetchProductsQuery();
 
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
@@ -53,11 +50,7 @@ const DashboardPage = () => {
       <main className="p-4">
         <div className="max-w-7xl mx-auto">
           <h2 className="text-xl font-semibold text-gray-800 mb-4">Products</h2>
-          {isLoading || !products ? (
-            <p>Loading products...</p>
-          ) : (
-            <ProductsView products={products} />
-          )}
+          <ProductsView />
         </div>
       </main>
     </div>

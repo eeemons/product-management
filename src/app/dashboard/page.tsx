@@ -1,7 +1,6 @@
 "use client";
 
 import { useSelector, useDispatch } from "react-redux";
-
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { AppDispatch, RootState } from "@/lib/store";
@@ -26,9 +25,8 @@ const DashboardPage = () => {
     router.push("/login");
   };
 
-  if (!isAuthenticated) {
-    return null;
-  }
+  if (!isAuthenticated) return null;
+
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="p-4 bg-white shadow-md">

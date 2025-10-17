@@ -1,19 +1,43 @@
+// store.ts
+import { configureStore } from "@reduxjs/toolkit";
+import authReducer from "./features/auth/authSlice";
 
-import { configureStore } from '@reduxjs/toolkit';
-import authReducer from './features/auth/authSlice';
-import { apiSlice } from './features/api/apiSlice';
+import {
+  persistStore,
+  persistReducer,
+  FLUSH,
+  REHYDRATE,
+  PAUSE,
+  PERSIST,
+  PURGE,
+  REGISTER,
+} from "redux-persist";
+import storage from "redux-persist/lib/storage"; // uses localStorage
+import { apiSlice } from "./features/api/apiSlice";
 
-export const makeStore = () => {
-  return configureStore({
-    reducer: {
-      auth: authReducer,
-      [apiSlice.reducerPath]: apiSlice.reducer,
-    },
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(apiSlice.middleware),
-  });
+// Persist config for auth slice
+const persistConfig = {
+  key: "auth",
+  storage,
+  whitelist: ["token", "isAuthenticated"], // only persist token + auth state
 };
 
-export type AppStore = ReturnType<typeof makeStore>;
-export type RootState = ReturnType<AppStore['getState']>;
-export type AppDispatch = AppStore['dispatch'];
+const persistedAuthReducer = persistReducer(persistConfig, authReducer);
+
+export const store = configureStore({
+  reducer: {
+    auth: persistedAuthReducer,
+    [apiSlice.reducerPath]: apiSlice.reducer,
+  },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      serializableCheck: {
+        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+      },
+    }).concat(apiSlice.middleware),
+});
+
+export const persistor = persistStore(store);
+
+export type RootState = ReturnType<typeof store.getState>;
+export type AppDispatch = typeof store.dispatch;

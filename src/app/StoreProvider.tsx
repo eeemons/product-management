@@ -1,18 +1,19 @@
-'use client'
-import { useRef, useEffect } from 'react'
-import { Provider } from 'react-redux'
-import { makeStore, AppStore } from '../lib/store'
-import { rehydrateAuth } from '@/lib/features/auth/authSlice'
+"use client";
 
-export default function StoreProvider({ children }: { children: React.ReactNode }) {
-  const storeRef = useRef<AppStore>()
-  if (!storeRef.current) {
-    storeRef.current = makeStore()
-  }
+import { persistor, store } from "@/lib/store";
+import { Provider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
 
-  useEffect(() => {
-    storeRef.current?.dispatch(rehydrateAuth())
-  }, [])
-
-  return <Provider store={storeRef.current}>{children}</Provider>
+export default function StoreProvider({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <Provider store={store}>
+      <PersistGate loading={null} persistor={persistor}>
+        {children}
+      </PersistGate>
+    </Provider>
+  );
 }

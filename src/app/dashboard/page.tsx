@@ -7,9 +7,11 @@ import { AppDispatch, RootState } from "@/lib/store";
 import { logout } from "@/lib/features/auth/authSlice";
 import { useFetchProductsQuery } from "@/lib/features/products/productsSlice";
 
+import ProductsView from "@/components/products/ProductsView";
+
 const DashboardPage = () => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
-  const { data: products } = useFetchProductsQuery();
+  const { data: products, isLoading } = useFetchProductsQuery();
 
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
@@ -30,7 +32,7 @@ const DashboardPage = () => {
   return (
     <div className="min-h-screen bg-gray-100">
       <header className="p-4 bg-white shadow-md">
-        <div className="flex items-center justify-between max-w-4xl mx-auto">
+        <div className="flex items-center justify-between max-w-7xl mx-auto">
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
           <nav>
             <a
@@ -49,8 +51,13 @@ const DashboardPage = () => {
         </div>
       </header>
       <main className="p-4">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-xl font-semibold text-gray-800">Welcome, User</h2>
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-xl font-semibold text-gray-800 mb-4">Products</h2>
+          {isLoading || !products ? (
+            <p>Loading products...</p>
+          ) : (
+            <ProductsView products={products} />
+          )}
         </div>
       </main>
     </div>

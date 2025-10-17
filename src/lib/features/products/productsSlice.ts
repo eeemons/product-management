@@ -1,8 +1,9 @@
+import { Product } from "@/lib/types";
 import { apiSlice } from "../api/apiSlice";
 
 export const productsApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
-    fetchProducts: builder.query<any, void>({
+    fetchProducts: builder.query<Product[], void>({
       query: () => "/products",
     }),
   }),

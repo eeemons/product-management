@@ -5,13 +5,14 @@ import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
 import { useLoginMutation } from "@/lib/features/auth/authSlice";
 import { RootState } from "@/lib/store";
 import InputField from "@/components/InputField";
 import { LoginFormData, loginSchema } from "@/schema/loginSchema";
 
 const LoginPage = () => {
-  const [login, { isLoading, error }] = useLoginMutation();
+  const [login, { isLoading }] = useLoginMutation();
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const router = useRouter();
 
@@ -26,7 +27,11 @@ const LoginPage = () => {
   const onSubmit = async (data: LoginFormData) => {
     try {
       await login({ email: data.email }).unwrap();
-    } catch (err) {
+      toast.success("Login successful!");
+    } catch (err: any) {
+      const errorMessage =
+        err.data?.message || "Failed to login. Please try again.";
+      toast.error(errorMessage);
       console.error("Failed to login: ", err);
     }
   };
@@ -57,10 +62,6 @@ const LoginPage = () => {
           >
             {isLoading ? "Logging in..." : "Login"}
           </button>
-
-          {error && (
-            <p className="text-sm text-red-600">{JSON.stringify(error)}</p>
-          )}
         </form>
       </div>
     </div>

@@ -12,6 +12,7 @@ import InputField from "@/components/InputField";
 import { useLoginMutation } from "@/lib/features/auth/authSlice";
 import { RootState } from "@/lib/store";
 import { LoginFormData, loginSchema } from "@/schema/loginSchema";
+import { MdEmail } from "react-icons/md";
 
 const LoginPage = () => {
   const [login, { isLoading }] = useLoginMutation();
@@ -73,6 +74,7 @@ const LoginPage = () => {
               placeholder="Enter your email"
               register={register("email")}
               error={errors.email}
+              icon={<MdEmail />}
             />
           </div>
 

@@ -6,10 +6,11 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
+import { motion } from "framer-motion";
 import Button from "@/components/Button";
+import InputField from "@/components/InputField";
 import { useLoginMutation } from "@/lib/features/auth/authSlice";
 import { RootState } from "@/lib/store";
-import InputField from "@/components/InputField";
 import { LoginFormData, loginSchema } from "@/schema/loginSchema";
 
 const LoginPage = () => {
@@ -44,23 +45,54 @@ const LoginPage = () => {
   }, [isAuthenticated, router]);
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100">
-      <div className="w-full max-w-md p-8 space-y-6 bg-white rounded-lg shadow-md">
-        <h1 className="text-2xl font-bold text-center text-gray-900">Login</h1>
-        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <InputField
-            label="Email"
-            type="email"
-            placeholder="Enter your email"
-            register={register("email")}
-            error={errors.email}
-          />
+    <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, ease: "easeOut" }}
+        className="w-full max-w-md bg-white rounded-2xl shadow-lg p-8 space-y-6 border border-gray-100"
+      >
+        <motion.h1
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="text-3xl font-semibold text-center text-gray-800"
+        >
+          Welcome Back
+        </motion.h1>
 
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Login"}
-          </Button>
+        <p className="text-center text-gray-500 text-sm mb-2">
+          Please sign in to continue
+        </p>
+
+        <form className="space-y-5" onSubmit={handleSubmit(onSubmit)}>
+          <div className="space-y-4">
+            <InputField
+              label="Email"
+              type="email"
+              placeholder="Enter your email"
+              register={register("email")}
+              error={errors.email}
+            />
+          </div>
+
+          <motion.div whileHover={{ scale: 1.01 }} whileTap={{ scale: 0.99 }}>
+            <Button type="submit" disabled={isLoading}>
+              {isLoading ? "Logging in..." : "Login"}
+            </Button>
+          </motion.div>
         </form>
-      </div>
+
+        <p className="text-center text-gray-500 text-sm">
+          Don’t have an account?{" "}
+          <a
+            href="/register"
+            className="text-indigo-600 font-medium hover:underline transition-colors"
+          >
+            Sign up
+          </a>
+        </p>
+      </motion.div>
     </div>
   );
 };

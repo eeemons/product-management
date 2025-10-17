@@ -6,9 +6,11 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { AppDispatch, RootState } from "@/lib/store";
 import { logout } from "@/lib/features/auth/authSlice";
+import { useFetchProductsQuery } from "@/lib/features/products/productsSlice";
 
 const DashboardPage = () => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { data: products } = useFetchProductsQuery();
 
   const dispatch = useDispatch<AppDispatch>();
   const router = useRouter();
@@ -32,6 +34,14 @@ const DashboardPage = () => {
       <header className="p-4 bg-white shadow-md">
         <div className="flex items-center justify-between max-w-4xl mx-auto">
           <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+          <nav>
+            <a
+              href="/products"
+              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900"
+            >
+              Products
+            </a>
+          </nav>
           <button
             onClick={handleLogout}
             className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"

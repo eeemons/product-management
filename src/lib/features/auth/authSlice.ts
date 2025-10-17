@@ -1,37 +1,26 @@
-import { createSlice, createAsyncThunk, PayloadAction } from "@reduxjs/toolkit";
+import { apiSlice } from "../api/apiSlice";
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 
-const API_BASE_URL = "https://api.bitechx.com";
-
-export const login = createAsyncThunk(
-  "auth/login",
-  async (credentials: any) => {
-    const response = await fetch(`${API_BASE_URL}/auth`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(credentials),
-    });
-    const data = await response.json();
-    if (!response.ok) {
-      throw new Error(data.message || "Something went wrong");
-    }
-    return data;
-  }
-);
+export const authApi = apiSlice.injectEndpoints({
+  endpoints: (builder) => ({
+    login: builder.mutation<{ token: string }, any>({
+      query: (credentials) => ({
+        url: "/auth",
+        method: "POST",
+        body: credentials,
+      }),
+    }),
+  }),
+});
 
 interface AuthState {
   token: string | null;
   isAuthenticated: boolean;
-  status: "idle" | "loading" | "succeeded" | "failed";
-  error: string | null;
 }
 
 const initialState: AuthState = {
   token: null,
   isAuthenticated: false,
-  status: "idle",
-  error: null,
 };
 
 const authSlice = createSlice({
@@ -56,24 +45,19 @@ const authSlice = createSlice({
     },
   },
   extraReducers: (builder) => {
-    builder
-      .addCase(login.pending, (state) => {
-        state.status = "loading";
-      })
-      .addCase(login.fulfilled, (state, action: PayloadAction<{ token: string }>) => {
-        state.status = "succeeded";
-        state.isAuthenticated = true;
+    builder.addMatcher(
+      authApi.endpoints.login.matchFulfilled,
+      (state, action: PayloadAction<{ token: string }>) => {
         state.token = action.payload.token;
+        state.isAuthenticated = true;
         if (typeof window !== "undefined") {
           localStorage.setItem("token", action.payload.token);
         }
-      })
-      .addCase(login.rejected, (state, action) => {
-        state.status = "failed";
-        state.error = action.error.message || null;
-      });
+      }
+    );
   },
 });
 
+export const { useLoginMutation } = authApi;
 export const { logout, rehydrateAuth } = authSlice.actions;
 export default authSlice.reducer;

@@ -1,30 +1,31 @@
 "use client";
 
-import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-
+import { useState, useEffect } from "react";
+import { useSelector } from "react-redux";
 import { useRouter } from "next/navigation";
-import { login } from "@/lib/features/auth/authSlice";
-import { AppDispatch, RootState } from "@/lib/store";
+import { useLoginMutation } from "@/lib/features/auth/authSlice";
+import { RootState } from "@/lib/store";
 
 const LoginPage = () => {
   const [email, setEmail] = useState("");
-
-  const dispatch = useDispatch<AppDispatch>();
+  const [login, { isLoading, error }] = useLoginMutation();
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const router = useRouter();
-  const { status, error, isAuthenticated } = useSelector(
-    (state: RootState) => state.auth
-  );
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(login({ email }));
+    try {
+      await login({ email }).unwrap();
+    } catch (err) {
+      console.error("Failed to login: ", err);
+    }
   };
 
-  if (isAuthenticated) {
-    router.push("/dashboard");
-    return null;
-  }
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.push("/dashboard");
+    }
+  }, [isAuthenticated, router]);
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
@@ -47,11 +48,11 @@ const LoginPage = () => {
           <button
             type="submit"
             className="w-full px-4 py-2 text-sm font-medium text-white bg-indigo-600 border border-transparent rounded-md shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-            disabled={status === "loading"}
+            disabled={isLoading}
           >
-            {status === "loading" ? "Logging in..." : "Login"}
+            {isLoading ? "Logging in..." : "Login"}
           </button>
-          {error && <p className="text-sm text-red-600">{error}</p>}
+          {error && <p className="text-sm text-red-600">{JSON.stringify(error)}</p>}
         </form>
       </div>
     </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ProductDetails from "@/components/products/ProductDetails";
 import Spinner from "@/components/Spinner";
 import { useFetchProductBySlugQuery, useUpdateProductMutation, useDeleteProductMutation } from "@/lib/features/products/productsSlice";
@@ -12,10 +12,16 @@ import { Product } from "@/lib/types";
 export default function ProductDetailsPage() {
   const params = useParams();
   const router = useRouter();
-  const slug = typeof params.slug === 'string' ? params.slug : '';
+  const [currentSlug, setCurrentSlug] = useState<string | null>(null);
 
-  const { data: product, error, isLoading } = useFetchProductBySlugQuery(slug, {
-    skip: !slug,
+  useEffect(() => {
+    if (typeof params.slug === 'string' && params.slug !== currentSlug) {
+      setCurrentSlug(params.slug);
+    }
+  }, [params.slug, currentSlug]);
+
+  const { data: product, error, isLoading } = useFetchProductBySlugQuery(currentSlug || '', {
+    skip: !currentSlug,
   });
 
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -23,7 +29,6 @@ export default function ProductDetailsPage() {
   const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
   const handleEdit = (productToEdit: Product) => {
-    // The product is already available from the query, so we just open the modal
     setIsEditModalOpen(true);
   };
 
@@ -43,7 +48,7 @@ export default function ProductDetailsPage() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || !currentSlug) {
     return (
       <div className="flex items-center justify-center h-screen bg-flash-white">
         <Spinner />
@@ -61,7 +66,7 @@ export default function ProductDetailsPage() {
 
   return (
     <>
-      <ProductDetails product={product} onEdit={handleEdit} onDelete={handleDeleteClick} />
+      <ProductDetails key={product.slug} product={product} onEdit={handleEdit} onDelete={handleDeleteClick} />
       {isEditModalOpen && product && (
         <EditProductModal product={product} onClose={() => setIsEditModalOpen(false)} />
       )}

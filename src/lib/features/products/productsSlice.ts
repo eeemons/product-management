@@ -8,39 +8,55 @@ export const productsApi = apiSlice.injectEndpoints({
       providesTags: (result) =>
         result
           ? [
-              ...result.map(({ id }) => ({ type: 'Product' as const, id })),
-              { type: 'Product', id: 'LIST' },
+              ...result.map(({ id }) => ({ type: "Product" as const, id })),
+              { type: "Product", id: "LIST" },
             ]
-          : [{ type: 'Product', id: 'LIST' }],
+          : [{ type: "Product", id: "LIST" }],
     }),
     fetchProductBySlug: builder.query<Product, string>({
       query: (slug) => `products/${slug}`,
-      providesTags: (result, error, id) => [{ type: 'Product', id }],
+      providesTags: (result, error, slug) =>
+        result ? [{ type: "Product", id: result.id }] : [],
     }),
     createProduct: builder.mutation<Product, Partial<Product>>({
       query: (body) => ({
-        url: 'products',
-        method: 'POST',
+        url: "products",
+        method: "POST",
         body,
       }),
-      invalidatesTags: [{ type: 'Product', id: 'LIST' }],
+      invalidatesTags: [{ type: "Product", id: "LIST" }],
     }),
-    updateProduct: builder.mutation<Product, { id: string; data: Partial<Product> }>({
+    updateProduct: builder.mutation<
+      Product,
+      { id: string; data: Partial<Product> }
+    >({
       query: ({ id, data }) => ({
         url: `products/${id}`,
-        method: 'PUT', // or 'PATCH'
+        method: "PUT", // or 'PATCH'
         body: data,
       }),
-      invalidatesTags: (result, error, { id }) => [{ type: 'Product', id }, { type: 'Product', id: 'LIST' }],
+      invalidatesTags: (result, error, { id }) => [
+        { type: "Product", id },
+        { type: "Product", id: "LIST" },
+      ],
     }),
     deleteProduct: builder.mutation<void, string>({
       query: (id) => ({
         url: `products/${id}`,
-        method: 'DELETE',
+        method: "DELETE",
       }),
-      invalidatesTags: (result, error, id) => [{ type: 'Product', id }, { type: 'Product', id: 'LIST' }],
+      invalidatesTags: (result, error, id) => [
+        { type: "Product", id },
+        { type: "Product", id: "LIST" },
+      ],
     }),
   }),
 });
 
-export const { useFetchProductsQuery, useFetchProductBySlugQuery, useCreateProductMutation, useUpdateProductMutation, useDeleteProductMutation } = productsApi;
+export const {
+  useFetchProductsQuery,
+  useFetchProductBySlugQuery,
+  useCreateProductMutation,
+  useUpdateProductMutation,
+  useDeleteProductMutation,
+} = productsApi;

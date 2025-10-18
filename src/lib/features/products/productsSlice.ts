@@ -13,6 +13,7 @@ export const productsApi = apiSlice.injectEndpoints({
             ]
           : [{ type: "Product", id: "LIST" }],
     }),
+
     fetchProductBySlug: builder.query<Product, string>({
       query: (slug) => `products/${slug}`,
       providesTags: (result, error, slug) =>

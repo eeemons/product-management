@@ -46,7 +46,7 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
             <input type="number" {...register('price', { required: 'Price is required', valueAsNumber: true })} className="w-full p-2 border rounded-md" />
           </InputField>
           <InputField label="Category" error={errors.categoryId?.message}>
-            {isLoadingCategories ? <Spinner /> : (
+            {isLoadingCategories ? <Spinner size="small" /> : (
               <select {...register('categoryId', { required: 'Category is required' })} className="w-full p-2 border rounded-md">
                 <option value="">Select a category</option>
                 {categories?.map((category: any) => (
@@ -61,7 +61,7 @@ const AddProductModal = ({ onClose }: { onClose: () => void }) => {
           <div className="flex justify-end gap-4 mt-6">
             <button type="button" onClick={onClose} className="px-4 py-2 rounded-md text-rich-black bg-gray-200 hover:bg-gray-300">Cancel</button>
             <button type="submit" disabled={isLoading} className="px-4 py-2 rounded-md text-white bg-rich-black hover:bg-hooker-green disabled:bg-gray-400 flex items-center gap-2">
-              {isLoading && <Spinner />} {isLoading ? 'Creating...' : 'Create Product'}
+              {isLoading && <Spinner size="small" />} {isLoading ? 'Creating...' : 'Create Product'}
             </button>
           </div>
         </form>

@@ -6,10 +6,11 @@ import ProductListItem from "./ProductListItem";
 import ViewToggle from "./ViewToggle";
 import Pagination from "./Pagination";
 import { motion, AnimatePresence } from "framer-motion";
-import { useFetchProductsQuery } from "@/lib/features/products/productsSlice";
+import { useFetchProductsQuery, useDeleteProductMutation } from "@/lib/features/products/productsSlice";
 import Spinner from "../Spinner";
 import { Product } from "@/lib/types";
 import EditProductModal from "./EditProductModal";
+import ConfirmationModal from "../ConfirmationModal";
 
 const ProductsView = () => {
   const [view, setView] = useState("grid");
@@ -17,16 +18,35 @@ const ProductsView = () => {
   const [productsPerPage, setProductsPerPage] = useState(10);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const offset = (currentPage - 1) * productsPerPage;
 
   const { data: products, isFetching } = useFetchProductsQuery({ offset, limit: productsPerPage });
+  const [deleteProduct, { isLoading: isDeleting }] = useDeleteProductMutation();
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
 
   const handleEdit = (product: Product) => {
     setSelectedProduct(product);
     setIsEditModalOpen(true);
+  };
+
+  const handleDeleteClick = (product: Product) => {
+    setSelectedProduct(product);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (selectedProduct) {
+      try {
+        await deleteProduct(selectedProduct.id).unwrap();
+        setIsDeleteModalOpen(false);
+        setSelectedProduct(null);
+      } catch (error) {
+        console.error('Failed to delete product: ', error);
+      }
+    }
   };
 
   const variants = {
@@ -59,13 +79,13 @@ const ProductsView = () => {
           {view === "grid" ? (
             <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {products?.map((product) => (
-                <ProductCard key={product.id} product={product} onEdit={handleEdit} />
+                <ProductCard key={product.id} product={product} onEdit={handleEdit} onDelete={handleDeleteClick} />
               ))}
             </div>
           ) : (
             <div className="flex flex-col gap-4">
               {products?.map((product) => (
-                <ProductListItem key={product.id} product={product} onEdit={handleEdit} />
+                <ProductListItem key={product.id} product={product} onEdit={handleEdit} onDelete={handleDeleteClick} />
               ))}
             </div>
           )}
@@ -82,6 +102,14 @@ const ProductsView = () => {
       </div>
       {isEditModalOpen && selectedProduct && (
         <EditProductModal product={selectedProduct} onClose={() => setIsEditModalOpen(false)} />
+      )}
+      {isDeleteModalOpen && selectedProduct && (
+        <ConfirmationModal
+          message={`Are you sure you want to delete "${selectedProduct.name}"?`}
+          onConfirm={handleConfirmDelete}
+          onCancel={() => setIsDeleteModalOpen(false)}
+          isLoading={isDeleting}
+        />
       )}
     </div>
   );

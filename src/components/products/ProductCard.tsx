@@ -8,9 +8,10 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 interface ProductCardProps {
   product: Product;
   onEdit: (product: Product) => void;
+  onDelete: (product: Product) => void;
 }
 
-const ProductCard = ({ product, onEdit }: ProductCardProps) => {
+const ProductCard = ({ product, onEdit, onDelete }: ProductCardProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
@@ -62,6 +63,9 @@ const ProductCard = ({ product, onEdit }: ProductCardProps) => {
                 <div className="py-1">
                     <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); onEdit(product); setIsMenuOpen(false); }} className="w-full text-left block px-4 py-2 text-sm text-rich-black hover:bg-flash-white">
                         Edit
+                    </button>
+                    <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); onDelete(product); setIsMenuOpen(false); }} className="w-full text-left block px-4 py-2 text-sm text-chestnut-red hover:bg-flash-white">
+                        Delete
                     </button>
                 </div>
             </div>

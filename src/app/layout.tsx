@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import StoreProvider from "./StoreProvider";
 import ToastProvider from "@/components/ToastProvider";
+import LayoutWrapper from "./LayoutWrapper";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,10 +19,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>
+      <body className={`${inter.className} bg-flash-white`}>
         <StoreProvider>
           <ToastProvider />
-          {children}
+          <LayoutWrapper>{children}</LayoutWrapper>
         </StoreProvider>
       </body>
     </html>

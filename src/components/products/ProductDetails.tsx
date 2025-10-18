@@ -1,17 +1,30 @@
-"use client";
+'use client';
 
-import { Product } from "@/lib/types";
-import { useState } from "react";
+import { useState } from 'react';
+import { Product } from '@/lib/types';
+import { useRouter } from 'next/navigation';
 
 const ProductDetails = ({ product }: { product: Product }) => {
-  const [selectedImage, setSelectedImage] = useState(
-    product.images?.[0] || "/placeholder.svg"
-  );
+  const [selectedImage, setSelectedImage] = useState(product.images?.[0] || '/placeholder.svg');
+  const router = useRouter();
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
+    });
+  };
 
   return (
-    <div className="min-h-screen bg-flash-white text-rich-black">
-      <div className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12 items-start">
+    <div className="bg-flash-white text-rich-black">
+        <div className="mb-8">
+            <button onClick={() => router.back()} className="flex items-center gap-2 text-sm font-semibold text-rich-black hover:text-hooker-green transition-colors">
+                <ArrowLeftIcon />
+                <span>Go Back</span>
+            </button>
+        </div>
+        <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
           {/* Image Gallery */}
           <div className="lg:col-span-3 flex flex-col gap-4 animate-fade-in">
             <div className="aspect-square w-full overflow-hidden rounded-lg shadow-lg bg-white">
@@ -21,22 +34,14 @@ const ProductDetails = ({ product }: { product: Product }) => {
                 className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
               />
             </div>
-            <div className="grid grid-cols-4 gap-2">
+            <div className="grid grid-cols-5 gap-2">
               {product.images?.map((image, index) => (
                 <div
                   key={index}
-                  className={`aspect-square w-full overflow-hidden rounded-md cursor-pointer border-2 transition-all duration-200 ${
-                    selectedImage === image
-                      ? "border-lion-brown"
-                      : "border-transparent hover:border-hooker-green"
-                  }`}
+                  className={`aspect-square w-full overflow-hidden rounded-md cursor-pointer border-2 transition-all duration-200 ${selectedImage === image ? 'border-lion-brown' : 'border-transparent hover:border-hooker-green'}`}
                   onClick={() => setSelectedImage(image)}
                 >
-                  <img
-                    src={image}
-                    alt={`${product.name} thumbnail ${index + 1}`}
-                    className="w-full h-full object-cover"
-                  />
+                  <img src={image} alt={`${product.name} thumbnail ${index + 1}`} className="w-full h-full object-cover" />
                 </div>
               ))}
             </div>
@@ -62,11 +67,11 @@ const ProductDetails = ({ product }: { product: Product }) => {
               <div className="flex flex-col gap-3 text-sm">
                 <div className="flex items-center gap-2">
                     <CalendarIcon />
-                    <span>Added on: {new Date(product.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                    <span>Added on: {formatDate(product.createdAt)}</span>
                 </div>
                 <div className="flex items-center gap-2">
                     <RefreshIcon />
-                    <span>Last updated: {new Date(product.updatedAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</span>
+                    <span>Last updated: {formatDate(product.updatedAt)}</span>
                 </div>
               </div>
             </div>
@@ -85,7 +90,6 @@ const ProductDetails = ({ product }: { product: Product }) => {
             )}
           </div>
         </div>
-      </div>
     </div>
   );
 };
@@ -99,6 +103,12 @@ const CalendarIcon = () => (
 const RefreshIcon = () => (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-lion-brown" fill="none" viewBox="0 0 24 24" stroke="currentColor">
         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h5M20 20v-5h-5M4 4l1.5 1.5A9 9 0 0120.5 12M20 20l-1.5-1.5A9 9 0 003.5 12" />
+    </svg>
+);
+
+const ArrowLeftIcon = () => (
+    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
     </svg>
 );
 

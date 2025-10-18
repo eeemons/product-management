@@ -4,7 +4,13 @@ import { useState } from 'react';
 import { Product } from '@/lib/types';
 import { useRouter } from 'next/navigation';
 
-const ProductDetails = ({ product }: { product: Product }) => {
+interface ProductDetailsProps {
+  product: Product;
+  onEdit: (product: Product) => void;
+  onDelete: (product: Product) => void;
+}
+
+const ProductDetails = ({ product, onEdit, onDelete }: ProductDetailsProps) => {
   const [selectedImage, setSelectedImage] = useState(product.images?.[0] || '/placeholder.svg');
   const router = useRouter();
 
@@ -18,11 +24,19 @@ const ProductDetails = ({ product }: { product: Product }) => {
 
   return (
     <div className="bg-flash-white text-rich-black">
-        <div className="mb-8">
+        <div className="mb-8 flex justify-between items-center">
             <button onClick={() => router.back()} className="flex items-center gap-2 text-sm font-semibold text-rich-black hover:text-hooker-green transition-colors">
                 <ArrowLeftIcon />
                 <span>Go Back</span>
             </button>
+            <div className="flex gap-2">
+                <button onClick={() => onEdit(product)} className="px-4 py-2 rounded-md text-rich-black bg-gray-200 hover:bg-gray-300 text-sm">
+                    Edit
+                </button>
+                <button onClick={() => onDelete(product)} className="px-4 py-2 rounded-md text-white bg-chestnut-red hover:bg-red-700 text-sm">
+                    Delete
+                </button>
+            </div>
         </div>
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-12">
           {/* Image Gallery */}

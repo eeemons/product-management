@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState } from "react";
 import ProductCard from "./ProductCard";
@@ -8,17 +8,26 @@ import Pagination from "./Pagination";
 import { motion, AnimatePresence } from "framer-motion";
 import { useFetchProductsQuery } from "@/lib/features/products/productsSlice";
 import Spinner from "../Spinner";
+import { Product } from "@/lib/types";
+import EditProductModal from "./EditProductModal";
 
 const ProductsView = () => {
   const [view, setView] = useState("grid");
   const [currentPage, setCurrentPage] = useState(1);
   const [productsPerPage, setProductsPerPage] = useState(10);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   const offset = (currentPage - 1) * productsPerPage;
 
   const { data: products, isFetching } = useFetchProductsQuery({ offset, limit: productsPerPage });
 
   const paginate = (pageNumber: number) => setCurrentPage(pageNumber);
+
+  const handleEdit = (product: Product) => {
+    setSelectedProduct(product);
+    setIsEditModalOpen(true);
+  };
 
   const variants = {
     hidden: { opacity: 0 },
@@ -50,13 +59,13 @@ const ProductsView = () => {
           {view === "grid" ? (
             <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
               {products?.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard key={product.id} product={product} onEdit={handleEdit} />
               ))}
             </div>
           ) : (
             <div className="flex flex-col gap-4">
               {products?.map((product) => (
-                <ProductListItem key={product.id} product={product} />
+                <ProductListItem key={product.id} product={product} onEdit={handleEdit} />
               ))}
             </div>
           )}
@@ -71,6 +80,9 @@ const ProductsView = () => {
           setProductsPerPage={setProductsPerPage}
         />
       </div>
+      {isEditModalOpen && selectedProduct && (
+        <EditProductModal product={selectedProduct} onClose={() => setIsEditModalOpen(false)} />
+      )}
     </div>
   );
 };

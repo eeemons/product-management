@@ -25,7 +25,15 @@ export const productsApi = apiSlice.injectEndpoints({
       }),
       invalidatesTags: [{ type: 'Product', id: 'LIST' }],
     }),
+    updateProduct: builder.mutation<Product, { id: string; data: Partial<Product> }>({
+      query: ({ id, data }) => ({
+        url: `products/${id}`,
+        method: 'PUT', // or 'PATCH'
+        body: data,
+      }),
+      invalidatesTags: (result, error, { id }) => [{ type: 'Product', id }, { type: 'Product', id: 'LIST' }],
+    }),
   }),
 });
 
-export const { useFetchProductsQuery, useFetchProductBySlugQuery, useCreateProductMutation } = productsApi;
+export const { useFetchProductsQuery, useFetchProductBySlugQuery, useCreateProductMutation, useUpdateProductMutation } = productsApi;
